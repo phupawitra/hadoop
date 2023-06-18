@@ -1,5 +1,64 @@
 # Hadoop
+## Prepare environment
+### Create VM
+- Enable Compute Engine API
+- Create vm instance
+- setup network firewall of vm
+    - open firewall for all inbound for this practice only (not secure)
+    - create a firewall rule for access via Web UI
+        - allow tcp port : 7180 for Cloudera Manager
+        - allow tcp port : 8888 for Cloudera HUE
+- go to SSH terminal
 
+### Cloudera Hadoop via Docker container
+#### Install and Use Docker on Ubuntu 18.04
+https://www.digitalocean.com/community/tutorials/how-to-install-and-use-docker-on-ubuntu-18-04
+- step 1-4
+- In step 2, use this command for find user and set password
+
+```bash
+#own password
+passwd
+
+# change password for other user account
+## login as the root user
+su -
+passwd ${USER}
+```
+
+#### Pull docker image to my vm
+
+```bash
+#pull image
+docker pull mikelemikelo/cloudera-spark:latest
+
+#check image
+docker images
+
+#run image
+docker run --hostname=quickstart.cloudera --privileged=true -it -p 8888:8888 -p8080:8080 -p 7180:7180 -p 88:88/udp -p 88:88 mikelemikelo/cloudera-spark:latest /usr/bin/docker-quickstart-light
+```
+
+#### Access Cloudera Manager
+
+```bash
+sudo /home/cloudera/cloudera-manager --express && service ntpd start
+```
+- use Public / External IP of VM with port 7180
+- ex. http://34.126.72.57:7180/ -> user: cloudera, pwd: cloudera
+
+
+#### Set up Cloudera Manager
+
+- set configuration of hive service is none
+- delete useless sevice ex. Spark, KV Indexer
+(Spark of CDH is version 1.x.x that cannot use spark structured streaming → use Spark Local in docker container instead)
+    - Add service “Flume”
+- start cluster
+- access system via Cloudera HUE
+    - use Public / External IP of VM with port 8888
+    - ex. http://34.126.72.57:8888/ -> user: cloudera, pwd: cloudera
+---
 ## Batch
 ### Source files to HDFS by using CLI
 ```sh
@@ -36,7 +95,7 @@ hadoop fs -put /src_sys_batch/customer.csv /tmp/file/sink
     ```sh
     hive -f /init_tbl/init_hive_customers_cln_tbl.sql
     ```
-
+---
 ## Stream Layer
 ### Prepare path source and sink
 - source path
@@ -157,7 +216,7 @@ hadoop fs -put /src_sys_batch/customer.csv /tmp/file/sink
     ```sh
     hive -f /init_tbl/init_hive_transactions_cln_tbl.sql
     ```
-
+---
 ## Join data
 ### Create target table
 - LOCATION '/tmp/default/loyalty/'
@@ -182,7 +241,7 @@ hadoop fs -put /src_sys_batch/customer.csv /tmp/file/sink
     on a.cust_id = b.cust_id
     group by a.cust_id, a.cust_nm, a.cust_member_card_no
     ```
-
+---
 ## Oozie
 - Control access by using Hue Web 
 - Services: Workflow and Coordinator
