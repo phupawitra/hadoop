@@ -26,3 +26,13 @@ hive -f /init_tbl/init_hive_customers_tbl.sql
     - ex. selectExpr("customer_id `as` cust_id",\\
           "gender `as` cust_gender")
 - write to destination path
+- submit script
+```sh
+spark-submit /spark/spark_batch.py
+```
+
+### Create a structure table over a file for a query
+- LOCATION '/tmp/default/customers_cln/'
+```sh
+hive -f /init_tbl/init_hive_customers_cln_tbl.sql
+```
