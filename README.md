@@ -131,3 +131,29 @@ hadoop fs -put /src_sys_batch/customer.csv /tmp/file/sink
     ```sh
     hive -f /init_tbl/init_hive_transactions_tbl.sql
     ```
+
+### Spark Streaming (cleansing and transformation)
+- open spark session
+- declare checkpoint (for fault torrance)
+- declare structure
+- readStream csv to df
+- clean data
+    - withColumn
+        - split
+            - ex. 
+                `split`(df['customer_order'], `' '`).`getItem(1)`.cast('integer')
+        - from_unixtime
+            - ex. `from_unixtime`(col("order_timestamp"),`'dd-MM-yyyy HH:mm:ss'`).cast('string')
+        - drop
+- selectExpr
+- write stream file to destination path
+- submit script
+    ```sh
+    nohup spark-submit /spark/spark_streaming.py &
+    ```
+
+### Create a structure table over a file for a query
+- LOCATION '/tmp/default/transactions_cln/'
+    ```sh
+    hive -f /init_tbl/init_hive_transactions_cln_tbl.sql
+    ```
