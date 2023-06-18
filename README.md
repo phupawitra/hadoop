@@ -1,7 +1,7 @@
 # Hadoop
 
 ## Batch
-### Source files to HDFS using CLI
+### Source files to HDFS by using CLI
 ```sh
 hadoop fs -mkdir -p /tmp/file/sink
 hadoop fs -put /src_sys_batch/customer.csv /tmp/file/sink
@@ -90,7 +90,7 @@ hadoop fs -put /src_sys_batch/customer.csv /tmp/file/sink
 
 ### Generate log files from source system
 
-- log files stream to HDFS and Hbase using Flume
+- log files stream to HDFS and Hbase by using Flume
 
     ```sh
     nohup sh /src_sys_stream/src_sys.sh &
@@ -182,3 +182,32 @@ hadoop fs -put /src_sys_batch/customer.csv /tmp/file/sink
     on a.cust_id = b.cust_id
     group by a.cust_id, a.cust_nm, a.cust_member_card_no
     ```
+
+## Oozie
+- Control access by using Hue Web 
+- Services: Workflow and Coordinator
+- Put script from local to hadoop
+    ```sh
+    hadoop fs -put /tnfm_script/insert_hive_loyalty.sql /tmp/file
+    ```
+- If want to add parameters in script
+    ```sh
+    PARTITION(data_dt='${data_dt}')
+    ```
+### Workflow (pipeline)
+1. Create workflow
+2. Drag hive2 script
+    - Choose script: insert_hive_loyalty.sql
+    - Add parameters: data_dt=${data_dt_wf}
+3. Save
+
+### Coordinator (trigger)
+1. Create coordinator
+2. Choose workflow
+3. How often? 
+    - Every…
+    - Timezone
+    - From...To... (when you submit a coordinator with start date in the past it catches up)
+4. Add Parameters: data_dt_wf = ${coord:formatTime(coord:nominalTime(), 'yyyyMMdd')}
+5. Save
+6. Submit
