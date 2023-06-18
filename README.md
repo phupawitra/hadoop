@@ -157,3 +157,28 @@ hadoop fs -put /src_sys_batch/customer.csv /tmp/file/sink
     ```sh
     hive -f /init_tbl/init_hive_transactions_cln_tbl.sql
     ```
+
+## Join data
+### Create target table
+- LOCATION '/tmp/default/loyalty/'
+    ```sh
+    hive -f /init_tbl/init_hive_loyalty_tbl.sql
+    ```
+- Add permission for write path (target table)
+
+    ```sh
+    hadoop fs -chmod -R 777 /tmp/default/loyalty
+    
+    # or if error chmod: '/tmp/default/lotalty': No such file or directory
+    hadoop fs -chmod -R 777 /tmp/
+    ```
+- Excecute  
+    ```
+    INSERT OVERWRITE TABLE loyalty
+    PARTITION(data_dt='2022-01-01')
+    select a.cust_id, a.cust_nm, a.cust_member_card_no, sum(b.odr_prc) as spnd_amt
+    from customers_cln as a
+    join transactions_cln as b
+    on a.cust_id = b.cust_id
+    group by a.cust_id, a.cust_nm, a.cust_member_card_no
+    ```
